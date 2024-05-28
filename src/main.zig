@@ -31,9 +31,6 @@ pub fn main() !void {
             error.EndOfStream => break :blk,
             else => return e,
         };
-        if (std.mem.containsAtLeast(u8, &std.ascii.whitespace, 1, &.{byte})) {
-            continue :blk;
-        }
 
         try out.writeAll(switch (byte) {
             '+' => plus(target),
@@ -42,7 +39,7 @@ pub fn main() !void {
             '<' => moveLeft(target),
             '.' => outputCell(target),
             ',' => readCell(target),
-            else => return stderr.writeAll("Invalid character\n"),
+            else => continue :blk,
         });
     }
 
