@@ -1,4 +1,8 @@
 const Target = enum {
+    @"x86_64-linux",
+};
+
+const OutputFormat = enum {
     nasm,
 };
 
@@ -22,9 +26,9 @@ pub fn main() !void {
     const out = try std.fs.cwd().createFile("out.s", .{});
     defer out.close();
 
-    const target: Target = .nasm;
+    const ofmt: OutputFormat = .nasm;
 
-    try out.writeAll(start(target));
+    try out.writeAll(start(ofmt));
 
     blk: while (true) {
         const byte = brainf.reader().readByte() catch |e| switch (e) {
@@ -33,21 +37,21 @@ pub fn main() !void {
         };
 
         try out.writeAll(switch (byte) {
-            '+' => plus(target),
-            '-' => minus(target),
-            '>' => moveRight(target),
-            '<' => moveLeft(target),
-            '.' => outputCell(target),
-            ',' => readCell(target),
+            '+' => plus(ofmt),
+            '-' => minus(ofmt),
+            '>' => moveRight(ofmt),
+            '<' => moveLeft(ofmt),
+            '.' => outputCell(ofmt),
+            ',' => readCell(ofmt),
             else => continue :blk,
         });
     }
 
-    try out.writeAll(end(target));
+    try out.writeAll(end(ofmt));
 }
 
-fn start(target: Target) []const u8 {
-    return switch (target) {
+fn start(ofmt: OutputFormat) []const u8 {
+    return switch (ofmt) {
         .nasm =>
         \\section .bss
         \\    mem: resb 512
@@ -75,8 +79,8 @@ fn start(target: Target) []const u8 {
     };
 }
 
-fn end(target: Target) []const u8 {
-    return switch (target) {
+fn end(ofmt: OutputFormat) []const u8 {
+    return switch (ofmt) {
         .nasm =>
         \\    ; Enable canonical mode
         \\    mov rax, 16            ; ioctl unsigned int fd	unsigned int cmd	unsigned long arg
@@ -98,24 +102,24 @@ fn end(target: Target) []const u8 {
     };
 }
 
-fn plus(target: Target) []const u8 {
-    return switch (target) {
+fn plus(ofmt: OutputFormat) []const u8 {
+    return switch (ofmt) {
         .nasm =>
         \\    add byte [mem + r10], 1
         \\
     };
 }
 
-fn minus(target: Target) []const u8 {
-    return switch (target) {
+fn minus(ofmt: OutputFormat) []const u8 {
+    return switch (ofmt) {
         .nasm =>
         \\    sub byte [mem + r10], 1
         \\
     };
 }
 
-fn moveRight(target: Target) []const u8 {
-    return switch (target) {
+fn moveRight(ofmt: OutputFormat) []const u8 {
+    return switch (ofmt) {
         .nasm =>
         \\    add r10, 1
         \\    and r10, 0xFF
@@ -123,8 +127,8 @@ fn moveRight(target: Target) []const u8 {
     };
 }
 
-fn moveLeft(target: Target) []const u8 {
-    return switch (target) {
+fn moveLeft(ofmt: OutputFormat) []const u8 {
+    return switch (ofmt) {
         .nasm =>
         \\    sub r10, 1
         \\    and r10, 0xFF
@@ -132,8 +136,8 @@ fn moveLeft(target: Target) []const u8 {
     };
 }
 
-fn outputCell(target: Target) []const u8 {
-    return switch (target) {
+fn outputCell(ofmt: OutputFormat) []const u8 {
+    return switch (ofmt) {
         .nasm =>
         \\    mov rax, 1
         \\    mov rdi, 1
@@ -145,8 +149,8 @@ fn outputCell(target: Target) []const u8 {
     };
 }
 
-fn readCell(target: Target) []const u8 {
-    return switch (target) {
+fn readCell(ofmt: OutputFormat) []const u8 {
+    return switch (ofmt) {
         .nasm =>
         \\    mov rax, 0
         \\    mov rdi, 1
