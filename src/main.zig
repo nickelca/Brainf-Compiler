@@ -116,6 +116,9 @@ fn usage(writer: anytype) !void {
         \\  output-format
         \\    nasm
         \\    gnu-as
+        \\    fasm
+        \\    masm
+        \\    llvm
         \\
         \\  optimization level
         \\    -O0        No optimization at all
