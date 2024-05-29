@@ -4,71 +4,7 @@
 //!     - Consider proper course of action upon outputCell failure
 //!         - Currently print error and exiting right away
 //!     - Add command line flags for target, output file
-
-const OutputFormat = union(enum) {
-    const Self = @This();
-    @"x86_64-linux-nasm": @import("x86_64-linux/nasm.zig"),
-
-    fn start(ofmt: Self) []const u8 {
-        return switch (ofmt) {
-            inline else => |o| @TypeOf(o).start,
-        };
-    }
-
-    fn end(ofmt: Self) []const u8 {
-        return switch (ofmt) {
-            inline else => |o| @TypeOf(o).end,
-        };
-    }
-
-    fn plus(ofmt: Self) []const u8 {
-        return switch (ofmt) {
-            inline else => |o| @TypeOf(o).plus,
-        };
-    }
-
-    fn minus(ofmt: Self) []const u8 {
-        return switch (ofmt) {
-            inline else => |o| @TypeOf(o).minus,
-        };
-    }
-
-    fn moveRight(ofmt: Self) []const u8 {
-        return switch (ofmt) {
-            inline else => |o| @TypeOf(o).move_right,
-        };
-    }
-
-    fn moveLeft(ofmt: Self) []const u8 {
-        return switch (ofmt) {
-            inline else => |o| @TypeOf(o).move_left,
-        };
-    }
-
-    fn outputCell(ofmt: Self) []const u8 {
-        return switch (ofmt) {
-            inline else => |o| @TypeOf(o).output_cell,
-        };
-    }
-
-    fn inputCell(ofmt: Self) []const u8 {
-        return switch (ofmt) {
-            inline else => |o| @TypeOf(o).input_cell,
-        };
-    }
-
-    fn startLoop(ofmt: Self) []const u8 {
-        return switch (ofmt) {
-            inline else => |o| @TypeOf(o).start_loop,
-        };
-    }
-
-    fn endLoop(ofmt: Self) []const u8 {
-        return switch (ofmt) {
-            inline else => |o| @TypeOf(o).end_loop,
-        };
-    }
-};
+//!         - Zig clap?
 
 pub fn main() !void {
     var gpa: std.heap.GeneralPurposeAllocator(.{}) = .{};
@@ -143,5 +79,71 @@ fn usage(writer: anytype) !void {
         \\    Compile file.bf into assembly
     );
 }
+
+const OutputFormat = union(enum) {
+    const Self = @This();
+
+    @"x86_64-linux-nasm": @import("x86_64-linux/nasm.zig"),
+
+    fn start(ofmt: Self) []const u8 {
+        return switch (ofmt) {
+            inline else => |o| @TypeOf(o).start,
+        };
+    }
+
+    fn end(ofmt: Self) []const u8 {
+        return switch (ofmt) {
+            inline else => |o| @TypeOf(o).end,
+        };
+    }
+
+    fn plus(ofmt: Self) []const u8 {
+        return switch (ofmt) {
+            inline else => |o| @TypeOf(o).plus,
+        };
+    }
+
+    fn minus(ofmt: Self) []const u8 {
+        return switch (ofmt) {
+            inline else => |o| @TypeOf(o).minus,
+        };
+    }
+
+    fn moveRight(ofmt: Self) []const u8 {
+        return switch (ofmt) {
+            inline else => |o| @TypeOf(o).move_right,
+        };
+    }
+
+    fn moveLeft(ofmt: Self) []const u8 {
+        return switch (ofmt) {
+            inline else => |o| @TypeOf(o).move_left,
+        };
+    }
+
+    fn outputCell(ofmt: Self) []const u8 {
+        return switch (ofmt) {
+            inline else => |o| @TypeOf(o).output_cell,
+        };
+    }
+
+    fn inputCell(ofmt: Self) []const u8 {
+        return switch (ofmt) {
+            inline else => |o| @TypeOf(o).input_cell,
+        };
+    }
+
+    fn startLoop(ofmt: Self) []const u8 {
+        return switch (ofmt) {
+            inline else => |o| @TypeOf(o).start_loop,
+        };
+    }
+
+    fn endLoop(ofmt: Self) []const u8 {
+        return switch (ofmt) {
+            inline else => |o| @TypeOf(o).end_loop,
+        };
+    }
+};
 
 const std = @import("std");
