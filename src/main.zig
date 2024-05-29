@@ -64,6 +64,8 @@ fn start(ofmt: OutputFormat) []const u8 {
         \\section .text
         \\global _start
         \\
+        \\%define ICANON 0x00000002
+        \\
         \\EIOCTL:
         \\   mov rax, 1
         \\   mov rdi, 1
@@ -97,7 +99,7 @@ fn start(ofmt: OutputFormat) []const u8 {
         \\    cmp rax, 0
         \\    jl EIOCTL
         \\
-        \\    and dword [termios + 12], ~0x00000002 ; ~ICANON
+        \\    and dword [termios + 12], ~ICANON
         \\    mov rax, 16
         \\    mov rdi, 1
         \\    mov rsi, 0x5402
@@ -121,7 +123,7 @@ fn end(ofmt: OutputFormat) []const u8 {
         \\    cmp rax, 0
         \\    jl EIOCTL
         \\
-        \\    or dword [termios + 12], 0x00000002 ; ICANON
+        \\    or dword [termios + 12], ICANON
         \\    mov rax, 16
         \\    mov rdi, 1
         \\    mov rsi, 0x5402
