@@ -4,7 +4,6 @@
 //!     - Consider proper course of action upon outputCell failure
 //!         - Currently print error and exiting right away
 //!     - Add command line flags for target, output file
-//!     - Buffer reader and writer
 
 const OutputFormat = union(enum) {
     const Self = @This();
@@ -86,10 +85,15 @@ pub fn main() !void {
         return usage(stderr);
     }
 
-    const brainf = try std.fs.cwd().openFile(args[1], .{});
-    defer brainf.close();
-    const out = try std.fs.cwd().createFile("out.s", .{});
-    defer out.close();
+    const brainf_file = try std.fs.cwd().openFile(args[1], .{});
+    defer brainf_file.close();
+    var brainf_buffered = std.io.bufferedReader(brainf_file.reader());
+    const brainf = brainf_buffered.reader();
+
+    const out_file = try std.fs.cwd().createFile("out.s", .{});
+    defer out_file.close();
+    var out_buffered = std.io.bufferedWriter(out_file.writer());
+    const out = out_buffered.writer();
 
     const ofmt: OutputFormat = .{ .@"x86_64-linux-nasm" = .{} };
 
@@ -100,7 +104,7 @@ pub fn main() !void {
 
     var read_position: usize = 0;
     blk: while (true) : (read_position += 1) {
-        const byte = brainf.reader().readByte() catch |e| switch (e) {
+        const byte = brainf.readByte() catch |e| switch (e) {
             error.EndOfStream => break :blk,
             else => return e,
         };
@@ -113,7 +117,7 @@ pub fn main() !void {
             '.' => try out.writeAll(ofmt.outputCell()),
             ',' => try out.writeAll(ofmt.inputCell()),
             '[' => {
-                try out.writer().print(ofmt.startLoop(), .{read_position});
+                try out.print(ofmt.startLoop(), .{read_position});
                 try loop_stack.append(read_position);
             },
             ']' => {
@@ -123,13 +127,14 @@ pub fn main() !void {
                         .{read_position},
                     );
                 };
-                try out.writer().print(ofmt.endLoop(), .{back_to});
+                try out.print(ofmt.endLoop(), .{back_to});
             },
             else => continue :blk,
         }
     }
 
     try out.writeAll(ofmt.end());
+    try out_buffered.flush();
 }
 
 fn usage(writer: anytype) !void {
