@@ -77,7 +77,28 @@ fn usage(writer: anytype) !void {
     try writer.writeAll(
         \\brainf-compile file.bf
         \\    Compile file.bf into assembly
+        \\
     );
+
+    // idealized usage
+    _ =
+        \\brainf-compile [-target=target] [-ofmt=output-format]
+        \\               [-o outfile] [-Olevel] infile.[bf|b]
+        \\  target
+        \\    x86_64
+        \\    aarch64
+        \\    arm64
+        \\
+        \\  output-format
+        \\    nasm
+        \\    gnu-as
+        \\
+        \\  optimization
+        \\    -O0        no optimization at all
+        \\    -O1        compact consecutive + - > <
+        \\    -O2        -O1 + do everything possible at compile time
+        \\
+    ;
 }
 
 const OutputFormat = union(enum) {
