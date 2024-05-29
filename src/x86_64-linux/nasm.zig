@@ -124,11 +124,14 @@ pub const input_cell =
 ;
 
 pub const start_loop =
-    \\    loop{d}:
+    \\    cmp byte [mem + r10], 0
+    \\    je loop_end{d}
+    \\    loop_start{0d}:
 ;
 
 pub const end_loop =
     \\    cmp byte [mem + r10], 0
-    \\    jne loop{d}
+    \\    jne loop_start{d}
+    \\    loop_end{0d}:
     \\
 ;
