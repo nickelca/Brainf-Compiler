@@ -38,7 +38,7 @@ pub fn main() !void {
     var out_buffered = std.io.bufferedWriter(out_file.writer());
     const out = out_buffered.writer();
 
-    const ofmt: OutputFormat = .{ .@"x86_64-linux-nasm" = .{} };
+    const ofmt: OutputFormat = .{ .@"x86_64-linux-gas" = .{} };
 
     try out.writeAll(ofmt.start());
 
@@ -95,7 +95,8 @@ pub fn main() !void {
 fn usage(writer: anytype) !void {
     try writer.writeAll(
         \\brainf infile.{bf|b}
-        \\    Compile infile.{bf|b} into out.s containing NASM assembly
+        \\    Compile infile.{bf|b} into out.s containing x86_64-linux
+        \\    NASM or GAS
         \\
     );
 
@@ -132,6 +133,7 @@ const OutputFormat = union(enum) {
     const Self = @This();
 
     @"x86_64-linux-nasm": @import("x86_64-linux/nasm.zig"),
+    @"x86_64-linux-gas": @import("x86_64-linux/gas.zig"),
 
     fn start(ofmt: Self) []const u8 {
         return switch (ofmt) {

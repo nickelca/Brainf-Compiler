@@ -127,6 +127,7 @@ pub const start_loop =
     \\    cmp byte [mem + r10], 0
     \\    je loop_end{d}
     \\    loop_start{0d}:
+    \\
 ;
 
 pub const end_loop =
