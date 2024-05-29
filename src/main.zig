@@ -1,3 +1,12 @@
+//! TODO
+//!     - Support more than just x86_64-linux NASM
+//!     - Support loops
+//!     - Ensure values wrap properly in 0-256 range. No sneaky overflow
+//!     - Consider proper course of action upon outputCell failure
+//!         - Currently failing and exiting right away
+//!     - Add command line flags for target, output file
+//!     - Buffer reader and writer
+
 const OutputFormat = union(enum) {
     @"x86_64-linux-nasm": @import("x86_64-linux/nasm.zig"),
 
