@@ -122,3 +122,13 @@ pub const input_cell =
     \\    syscall
     \\
 ;
+
+pub const start_loop =
+    \\    loop{d}:
+;
+
+pub const end_loop =
+    \\    cmp byte [mem + r10], 0
+    \\    jne loop{d}
+    \\
+;

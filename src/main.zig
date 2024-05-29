@@ -1,60 +1,72 @@
 //! TODO
 //!     - Support more than just x86_64-linux NASM
-//!     - Support loops
 //!     - Ensure values wrap properly in 0-256 range. No sneaky overflow
 //!     - Consider proper course of action upon outputCell failure
-//!         - Currently failing and exiting right away
+//!         - Currently print error and exiting right away
 //!     - Add command line flags for target, output file
 //!     - Buffer reader and writer
 
 const OutputFormat = union(enum) {
+    const Self = @This();
     @"x86_64-linux-nasm": @import("x86_64-linux/nasm.zig"),
 
-    fn start(ofmt: OutputFormat) []const u8 {
+    fn start(ofmt: Self) []const u8 {
         return switch (ofmt) {
             inline else => |o| @TypeOf(o).start,
         };
     }
 
-    fn end(ofmt: OutputFormat) []const u8 {
+    fn end(ofmt: Self) []const u8 {
         return switch (ofmt) {
             inline else => |o| @TypeOf(o).end,
         };
     }
 
-    fn plus(ofmt: OutputFormat) []const u8 {
+    fn plus(ofmt: Self) []const u8 {
         return switch (ofmt) {
             inline else => |o| @TypeOf(o).plus,
         };
     }
 
-    fn minus(ofmt: OutputFormat) []const u8 {
+    fn minus(ofmt: Self) []const u8 {
         return switch (ofmt) {
             inline else => |o| @TypeOf(o).minus,
         };
     }
 
-    fn moveRight(ofmt: OutputFormat) []const u8 {
+    fn moveRight(ofmt: Self) []const u8 {
         return switch (ofmt) {
             inline else => |o| @TypeOf(o).move_right,
         };
     }
 
-    fn moveLeft(ofmt: OutputFormat) []const u8 {
+    fn moveLeft(ofmt: Self) []const u8 {
         return switch (ofmt) {
             inline else => |o| @TypeOf(o).move_left,
         };
     }
 
-    fn outputCell(ofmt: OutputFormat) []const u8 {
+    fn outputCell(ofmt: Self) []const u8 {
         return switch (ofmt) {
             inline else => |o| @TypeOf(o).output_cell,
         };
     }
 
-    fn inputCell(ofmt: OutputFormat) []const u8 {
+    fn inputCell(ofmt: Self) []const u8 {
         return switch (ofmt) {
             inline else => |o| @TypeOf(o).input_cell,
+        };
+    }
+
+    fn startLoop(ofmt: Self) []const u8 {
+        return switch (ofmt) {
+            inline else => |o| @TypeOf(o).start_loop,
+        };
+    }
+
+    fn endLoop(ofmt: Self) []const u8 {
+        return switch (ofmt) {
+            inline else => |o| @TypeOf(o).end_loop,
         };
     }
 };
@@ -83,21 +95,38 @@ pub fn main() !void {
 
     try out.writeAll(ofmt.start());
 
-    blk: while (true) {
+    var loop_stack = std.ArrayList(usize).init(alloc);
+    defer loop_stack.deinit();
+
+    var read_position: usize = 0;
+    blk: while (true) : (read_position += 1) {
         const byte = brainf.reader().readByte() catch |e| switch (e) {
             error.EndOfStream => break :blk,
             else => return e,
         };
 
-        try out.writeAll(switch (byte) {
-            '+' => ofmt.plus(),
-            '-' => ofmt.minus(),
-            '>' => ofmt.moveRight(),
-            '<' => ofmt.moveLeft(),
-            '.' => ofmt.outputCell(),
-            ',' => ofmt.inputCell(),
+        switch (byte) {
+            '+' => try out.writeAll(ofmt.plus()),
+            '-' => try out.writeAll(ofmt.minus()),
+            '>' => try out.writeAll(ofmt.moveRight()),
+            '<' => try out.writeAll(ofmt.moveLeft()),
+            '.' => try out.writeAll(ofmt.outputCell()),
+            ',' => try out.writeAll(ofmt.inputCell()),
+            '[' => {
+                try out.writer().print(ofmt.startLoop(), .{read_position});
+                try loop_stack.append(read_position);
+            },
+            ']' => {
+                const back_to = loop_stack.popOrNull() orelse {
+                    return stderr.print(
+                        "Unmatched loop close at character {d}.\n",
+                        .{read_position},
+                    );
+                };
+                try out.writer().print(ofmt.endLoop(), .{back_to});
+            },
             else => continue :blk,
-        });
+        }
     }
 
     try out.writeAll(ofmt.end());
