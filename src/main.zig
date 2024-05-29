@@ -53,12 +53,38 @@ pub fn main() !void {
 fn start(ofmt: OutputFormat) []const u8 {
     return switch (ofmt) {
         .nasm =>
+        \\section .data
+        \\    EIOCTL_msg: db "Failed to disable/enable canonical mode.", 10 ; 41
+        \\    EWRITE_msg: db "Failed to write character.", 10 ; 27
+        \\
         \\section .bss
         \\    mem: resb 512
         \\    termios: resb 60 ; termios struct
         \\
         \\section .text
         \\global _start
+        \\
+        \\EIOCTL:
+        \\   mov rax, 1
+        \\   mov rdi, 1
+        \\   mov rsi, EIOCTL_msg
+        \\   mov rdx, 41
+        \\   syscall
+        \\   mov rdi, 16
+        \\   jmp exit
+        \\
+        \\EWRITE:
+        \\   mov rax, 1
+        \\   mov rdi, 1
+        \\   mov rsi, EWRITE_msg
+        \\   mov rdx, 27
+        \\   syscall
+        \\   mov rdi, 1
+        \\   jmp exit
+        \\
+        \\exit:
+        \\   mov rax, 60
+        \\   syscall
         \\
         \\_start:
         \\    mov r10, 0
@@ -68,13 +94,17 @@ fn start(ofmt: OutputFormat) []const u8 {
         \\    mov rsi, 0x5401        ; TCGETS
         \\    mov rdx, termios
         \\    syscall
-        \\    and dword [termios + 12], ~0x00000002
-        \\    ; ignore any error for now
+        \\    cmp rax, 0
+        \\    jl EIOCTL
+        \\
+        \\    and dword [termios + 12], ~0x00000002 ; ~ICANON
         \\    mov rax, 16
         \\    mov rdi, 1
         \\    mov rsi, 0x5402
         \\    mov rdx, termios
         \\    syscall
+        \\    cmp rax, 0
+        \\    jl EIOCTL
         \\
     };
 }
@@ -88,17 +118,20 @@ fn end(ofmt: OutputFormat) []const u8 {
         \\    mov rsi, 0x5401        ; TCGETS
         \\    mov rdx, termios
         \\    syscall
-        \\    or dword [termios + 12], 0x00000002
-        \\    ; ignore any error for now
+        \\    cmp rax, 0
+        \\    jl EIOCTL
+        \\
+        \\    or dword [termios + 12], 0x00000002 ; ICANON
         \\    mov rax, 16
         \\    mov rdi, 1
         \\    mov rsi, 0x5402
         \\    mov rdx, termios
         \\    syscall
+        \\    cmp rax, 0
+        \\    jl EIOCTL
         \\
-        \\    mov rax,60
         \\    mov rdi,0
-        \\    syscall
+        \\    jmp exit
     };
 }
 
@@ -145,6 +178,8 @@ fn outputCell(ofmt: OutputFormat) []const u8 {
         \\    add rsi, r10
         \\    mov rdx, 1
         \\    syscall
+        \\    cmp rax, 0
+        \\    jl EWRITE
         \\
     };
 }
