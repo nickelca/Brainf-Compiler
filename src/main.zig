@@ -76,6 +76,18 @@ pub fn main() !void {
         }
     }
 
+    const loop_stack_s = try loop_stack.toOwnedSlice();
+    defer alloc.free(loop_stack_s);
+    if (loop_stack_s.len > 0) {
+        for (loop_stack_s) |pos| {
+            try stderr.print(
+                "Unmatched loop start at character {d}.\n",
+                .{pos},
+            );
+        }
+        return;
+    }
+
     try out.writeAll(ofmt.end());
     try out_buffered.flush();
 }
