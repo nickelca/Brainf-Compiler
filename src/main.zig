@@ -21,6 +21,13 @@ pub fn main() !void {
         return usage(stderr);
     }
 
+    if (!std.mem.endsWith(u8, args[1], ".bf") and
+        !std.mem.endsWith(u8, args[1], ".b"))
+    {
+        try stderr.writeAll("Input file must be .bf or .b\n");
+        return usage(stderr);
+    }
+
     const brainf_file = try std.fs.cwd().openFile(args[1], .{});
     defer brainf_file.close();
     var brainf_buffered = std.io.bufferedReader(brainf_file.reader());
@@ -40,9 +47,9 @@ pub fn main() !void {
 
     var read_position: usize = 0;
     blk: while (true) : (read_position += 1) {
-        const byte = brainf.readByte() catch |e| switch (e) {
+        const byte = brainf.readByte() catch |err| switch (err) {
             error.EndOfStream => break :blk,
-            else => return e,
+            else => return err,
         };
 
         switch (byte) {
@@ -75,15 +82,15 @@ pub fn main() !void {
 
 fn usage(writer: anytype) !void {
     try writer.writeAll(
-        \\brainf-compile file.bf
-        \\    Compile file.bf into assembly
+        \\brainf-compile infile.{bf|b}
+        \\    Compile infile.{bf|b} into out.s containing NASM assembly
         \\
     );
 
     // idealized usage
     _ =
         \\brainf-compile [-target=target] [-ofmt=output-format]
-        \\               [-o outfile] [-Olevel] infile.[bf|b]
+        \\               [-o outfile] [-Olevel] infile.{bf|b}
         \\  target
         \\    x86_64
         \\    aarch64
