@@ -94,14 +94,14 @@ pub fn main() !void {
 
 fn usage(writer: anytype) !void {
     try writer.writeAll(
-        \\brainf-compile infile.{bf|b}
+        \\brainf infile.{bf|b}
         \\    Compile infile.{bf|b} into out.s containing NASM assembly
         \\
     );
 
     // idealized usage
     _ =
-        \\brainf-compile [-target=target] [-ofmt=output-format]
+        \\brainf [-target=target] [-ofmt=output-format]
         \\               [-o outfile] [-Olevel] infile.{bf|b}
         \\  target
         \\    x86_64-linux
