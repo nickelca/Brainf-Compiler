@@ -104,18 +104,23 @@ fn usage(writer: anytype) !void {
         \\brainf-compile [-target=target] [-ofmt=output-format]
         \\               [-o outfile] [-Olevel] infile.{bf|b}
         \\  target
-        \\    x86_64
+        \\    x86_64-linux
+        \\    x86-linux
+        \\    x86_64-windows
+        \\    x86-windows
         \\    aarch64
         \\    arm64
+        \\    riscv32
+        \\    riscv64
         \\
         \\  output-format
         \\    nasm
         \\    gnu-as
         \\
-        \\  optimization
-        \\    -O0        no optimization at all
-        \\    -O1        compact consecutive + - > <
-        \\    -O2        -O1 + do everything possible at compile time
+        \\  optimization level
+        \\    -O0        No optimization at all
+        \\    -O1        Compact consecutive + - > <
+        \\    -O2        -O1 + Do everything possible at compile time
         \\
     ;
 }
