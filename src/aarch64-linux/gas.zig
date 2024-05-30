@@ -10,6 +10,7 @@ pub const start =
     \\EIOCTL_msg: .ascii "Failed to disable/enable canonical mode.\n", // 41
     \\EWRITE_msg: .ascii "Failed to write character.\n" // 27
     \\
+    \\.align 3
     \\EIOCTL:
     \\   mov x8, #64
     \\   mov x0, #1
@@ -19,6 +20,7 @@ pub const start =
     \\   mov x0, #29
     \\   b exit
     \\
+    \\.align 3
     \\EWRITE:
     \\   mov x8, #64
     \\   mov x0, #1
@@ -28,6 +30,7 @@ pub const start =
     \\   mov x0, #64
     \\   b exit
     \\
+    \\.align 3
     \\exit:
     \\   mov x8, #93
     \\   svc #0
