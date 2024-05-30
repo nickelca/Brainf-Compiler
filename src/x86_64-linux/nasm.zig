@@ -1,14 +1,13 @@
 pub const start =
-    \\section .data
-    \\    EIOCTL_msg: db "Failed to disable/enable canonical mode.", 10 ; 41
-    \\    EWRITE_msg: db "Failed to write character.", 10 ; 27
-    \\
     \\section .bss
     \\    mem: resb 512
     \\    termios: resb 60 ; termios struct
     \\
     \\section .text
     \\global _start
+    \\
+    \\EIOCTL_msg: db "Failed to disable/enable canonical mode.", 10 ; 41
+    \\EWRITE_msg: db "Failed to write character.", 10 ; 27
     \\
     \\%define ICANON 0x00000002
     \\

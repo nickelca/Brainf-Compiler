@@ -1,14 +1,13 @@
 pub const start =
-    \\.data
-    \\    EIOCTL_msg: .ascii "Failed to disable/enable canonical mode.\n", /* 41 */
-    \\    EWRITE_msg: .ascii "Failed to write character.\n" /* 27 */
-    \\
     \\.bss
     \\    mem: .zero 512
     \\    termios: .zero 60 /* termios struct */
     \\
     \\.text
     \\.globl _start
+    \\
+    \\EIOCTL_msg: .ascii "Failed to disable/enable canonical mode.\n", /* 41 */
+    \\EWRITE_msg: .ascii "Failed to write character.\n" /* 27 */
     \\
     \\EIOCTL:
     \\   movq $1, %rax

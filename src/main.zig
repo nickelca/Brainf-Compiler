@@ -38,7 +38,7 @@ pub fn main() !void {
     var out_buffered = std.io.bufferedWriter(out_file.writer());
     const out = out_buffered.writer();
 
-    const ofmt: OutputFormat = .{ .@"x86_64-linux-gas" = .{} };
+    const ofmt: OutputFormat = .{ .@"aarch64-linux-gas" = .{} };
 
     try out.writeAll(ofmt.start());
 
@@ -103,7 +103,7 @@ fn usage(writer: anytype) !void {
     // idealized usage
     _ =
         \\brainf [-target=target] [-ofmt=output-format]
-        \\               [-o outfile] [-Olevel] infile.{bf|b}
+        \\       [-o outfile] [-Olevel] infile.{bf|b}
         \\  target
         \\    x86_64-linux
         \\    x86-linux
@@ -134,6 +134,7 @@ const OutputFormat = union(enum) {
 
     @"x86_64-linux-nasm": @import("x86_64-linux/nasm.zig"),
     @"x86_64-linux-gas": @import("x86_64-linux/gas.zig"),
+    @"aarch64-linux-gas": @import("aarch64-linux/gas.zig"),
 
     fn start(ofmt: Self) []const u8 {
         return switch (ofmt) {
