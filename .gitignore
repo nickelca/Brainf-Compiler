@@ -3,5 +3,5 @@ zig-cache/
 gdb-notes
 out
 out.s
-comp
-wee.bf
+comp-nasm
+comp-gas

@@ -104,6 +104,12 @@ fn usage(writer: anytype) !void {
     _ =
         \\brainf [-target=target] [-ofmt=output-format]
         \\       [-o outfile] [-Olevel] infile.{bf|b}
+        \\
+        \\  flags
+        \\    -h, --help        print this message
+        \\    --targets         list all supported target
+        \\    --output-formats  list all supported output formats
+        \\
         \\  target
         \\    x86_64-linux
         \\    x86-linux
