@@ -3,5 +3,7 @@ zig-cache/
 gdb-notes
 out
 out.s
-comp-nasm
-comp-gas
+comp-nasm32
+comp-nasm64
+comp-gas32
+comp-gas64
